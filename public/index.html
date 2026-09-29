@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkillTrack — Outcomes Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+  // Fallback in case cdnjs is blocked on this network — try jsDelivr instead.
+  if (typeof Chart === "undefined") {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"><\/script>');
+  }
+</script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-panel">
+    <div class="login-panel-top">
+      <p class="login-eyebrow mono">SKILLTRACK · OUTCOMES REGISTRY</p>
+      <h1 class="serif login-headline">Every trainee has a story <em>after</em> the certificate.</h1>
+      <p class="login-sub">A consent-based register that follows trainees past graduation — placement, wages, retention and the skill gaps that still stand in the way.</p>
+    </div>
+    <div class="seal-wrap">
+      <svg class="seal" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#E7B978" stroke-width="1"/>
+        <circle cx="50" cy="50" r="39" fill="none" stroke="#E7B978" stroke-width="0.6"/>
+        <path id="sealCircle" d="M 50,50 m -32,0 a 32,32 0 1,1 64,0 a 32,32 0 1,1 -64,0" fill="none"/>
+        <text font-size="5.6" fill="#E7B978" letter-spacing="2">
+          <textPath href="#sealCircle" startOffset="1%">OUTCOMES REGISTRY  ·  ESTD. 2026  ·  UTTAR PRADESH  ·</textPath>
+        </text>
+        <g stroke="#E7B978" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M35 60 L35 46"/>
+          <path d="M50 60 L50 39"/>
+          <path d="M65 60 L65 50"/>
+          <path d="M32 63 L68 63"/>
+        </g>
+      </svg>
+      <p class="seal-caption"><strong>Consent-first by design.</strong><br>No record is created without the trainee's explicit sign-off.</p>
+    </div>
+  </div>
+
+  <div class="login-form-side">
+    <div class="login-card card">
+      <h2 class="serif">Sign in</h2>
+      <p class="login-hint">Use your programme, provider or field-staff credentials.</p>
+      <form id="loginForm">
+        <div class="form-row"><label>Username</label><input name="username" autocomplete="username" required></div>
+        <div class="form-row"><label>Password</label><input type="password" name="password" autocomplete="current-password" required></div>
+        <p class="form-error hidden" id="loginError"></p>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:6px">Log in</button>
+      </form>
+      <div class="demo-creds">
+        <p><span class="cred-user">admin / admin123</span><span class="pill pill-navy">Admin</span></p>
+        <p><span class="cred-user">provider1 / provider123</span><span class="pill pill-teal">Provider</span></p>
+        <p><span class="cred-user">fieldstaff1 / field123</span><span class="pill pill-marigold">Field staff</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app hidden" id="appRoot">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">ST</span>
+      <div>
+        <div class="brand-name">SkillTrack</div>
+        <div class="brand-sub mono">OUTCOMES REGISTRY</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="dashboard">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="12" width="8" height="9" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-view="trainees">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6"/><circle cx="17" cy="8" r="2.4"/><path d="M15.5 14.2c2.6.3 4.5 2.6 4.5 5.8"/></svg>
+        Trainees
+      </button>
+      <button class="nav-item" data-view="placements">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>
+        Placements
+      </button>
+      <button class="nav-item" data-view="followups">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 4h12v9H8l-4 4z"/><path d="M9.5 8.2c.6.6 1.2 1.4 1.2 2.1"/></svg>
+        Follow-ups
+      </button>
+      <button class="nav-item" data-view="skillgaps">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4"/><path d="M12 16.5v.1"/></svg>
+        Skill Gaps
+      </button>
+      <button class="nav-item admin-only hidden" data-view="users">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.2 7.8-7 9-3.8-1.2-7-4-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        Users
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-box" id="userBox"></div>
+      <button id="resetDemoBtn" class="btn-ghost mono admin-only hidden">
+        <svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M20 11A8 8 0 1 0 6.3 17.7"/><path d="M20 5v6h-6"/></svg>
+        Reset demo data
+      </button>
+      <button id="logoutBtn" class="btn-ghost mono">
+        <svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Log out
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 class="serif" id="viewTitle">Dashboard</h1>
+        <p class="view-sub" id="viewSub">Programme, provider and district outcomes at a glance</p>
+      </div>
+      <p class="topbar-meta" id="topbarMeta"></p>
+    </header>
+
+    <section id="view-dashboard" class="view">
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="chart-grid">
+        <div class="card chart-card">
+          <h3>Placement rate by course</h3>
+          <canvas id="chartByCourse"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>Outcome distribution</h3>
+          <canvas id="chartOutcomes"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>Placement rate by district</h3>
+          <canvas id="chartByDistrict"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>Wage growth by tenure</h3>
+          <canvas id="chartWageTrend"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>Reasons for non-placement / attrition</h3>
+          <canvas id="chartAttrition"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>Skill gaps reported at follow-up</h3>
+          <canvas id="chartSkillGaps"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Provider accountability</h3>
+        <p class="card-sub">Enrolment-to-placement conversion, by training provider.</p>
+        <div class="table-wrap">
+          <table id="providerTable">
+            <thead><tr><th>Provider</th><th>District</th><th>Enrolled</th><th>Completed</th><th>Placed</th><th>Placement rate</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-trainees" class="view hidden">
+      <div class="toolbar">
+        <input type="text" id="traineeSearch" placeholder="Search by name or phone…" class="input">
+        <select id="filterDistrict" class="input"><option value="">All districts</option></select>
+        <select id="filterCourse" class="input"><option value="">All courses</option></select>
+        <select id="filterStatus" class="input">
+          <option value="">All statuses</option>
+          <option value="Enrolled">Enrolled</option>
+          <option value="Completed">Completed</option>
+          <option value="Dropped Out">Dropped Out</option>
+        </select>
+        <button class="btn-primary" id="addTraineeBtn">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>
+          Register trainee
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="traineeTable">
+            <thead><tr><th>Name</th><th>Phone</th><th>District</th><th>Course</th><th>Status</th><th>Placement</th><th>Last follow-up</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-placements" class="view hidden">
+      <div class="toolbar">
+        <p class="hint">Record wage employment, self-employment or apprenticeship outcomes and verify them over time.</p>
+        <button class="btn-primary" id="addPlacementBtn">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>
+          Record placement
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="placementTable">
+            <thead><tr><th>Trainee</th><th>Type</th><th>Employer</th><th>Start wage</th><th>Current wage</th><th>Status</th><th>Verification</th><th>Source</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-followups" class="view hidden">
+      <div class="toolbar">
+        <p class="hint">Automated + assisted follow-up: trainees due for a check-in appear below.</p>
+        <button class="btn-primary" id="addFollowupBtn">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>
+          Log follow-up
+        </button>
+      </div>
+      <div class="card">
+        <h3>Due for follow-up</h3>
+        <div class="table-wrap">
+          <table id="dueTable">
+            <thead><tr><th>Trainee</th><th>District</th><th>Last follow-up</th><th>Days since</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Follow-up history</h3>
+        <div class="table-wrap">
+          <table id="followupTable">
+            <thead><tr><th>Trainee</th><th>Date</th><th>Method</th><th>Status</th><th>Wage</th><th>Reason (if not placed)</th><th>Skill gap noted</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-skillgaps" class="view hidden">
+      <div class="card">
+        <h3>Aggregated skill gaps</h3>
+        <p class="card-sub">Tallied from follow-up records — use this to steer curriculum updates per course.</p>
+        <div class="table-wrap">
+          <table id="skillGapTable">
+            <thead><tr><th>Skill gap</th><th>Times reported</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Non-placement / attrition reasons</h3>
+        <div class="table-wrap">
+          <table id="attritionTable">
+            <thead><tr><th>Reason</th><th>Times reported</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-users" class="view hidden">
+      <div class="toolbar">
+        <p class="hint">Admin only — create accounts for training-provider coordinators and field staff.</p>
+        <button class="btn-primary" id="addUserBtn">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>
+          Add user
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="userTable">
+            <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Provider</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop hidden" id="modalBackdrop">
+  <div class="modal card" id="modalBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
